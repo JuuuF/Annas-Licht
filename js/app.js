@@ -242,7 +242,48 @@ function setView(v) {
   if (v === 'sky' && S.sel?.kind === 'star') lookAt(S.sel, S.skyT ?? Date.now());
   $('#hint').style.opacity = 1; setTimeout(() => { $('#hint').style.opacity = 0; }, 9000);
 }
-$$('#views [data-view]').forEach(b => b.onclick = () => setView(b.dataset.view));
+$$('#views [data-view]').forEach(b => b.onclick = () => switchView(b.dataset.view));
+
+// The way between the two views. To the night sky: down to the Earth, through a short darkness, then standing in Neumünster
+// looking straight up, and the gaze lowers to the horizon. Back: the gaze rises, and the map opens again out of the Earth,
+// to where it was left. `then` runs at the moment the view changes (e.g. to pick a star there).
+let spaceWas = null, skyWas = null;
+function switchView(v, then) {
+  if (S.view === v) { then?.(); return; }
+  if (anim && !anim.soft) return;                      // already on the way
+  if (S.calm || !W) { setView(v); then?.(); return; }
+  stopAnim();
+  const fade = $('#fade'), home = clampScale(fit(1.5 * LS, W, H)), UP = 89.9, WIDE = 0.62;
+  const dark = o => { fade.style.opacity = Math.min(1, Math.max(0, o)); };
+  if (v === 'sky') {
+    const c0 = [...cam.c], s0 = cam.scale;
+    spaceWas = { c: [...cam.c], tc: [...cam.tc], focus: cam.focus, scale: cam.target };
+    let rest;
+    play([
+      { dur: 1100, step: p => { const e = ease(p); steer(c0.map(x => x * (1 - e)), lerpLog(s0, home, e)); dark((p - 0.55) / 0.45); } },
+      { dur: 1800, start: () => {
+          if (skyWas) { skyCam.talt = skyWas.alt; skyCam.tzoom = skyWas.zoom; }
+          setView('sky'); then?.();
+          rest = { alt: skyCam.talt, zoom: skyCam.tzoom };
+        }, step: p => {
+          const e = ease(p);
+          skyCam.zoom = skyCam.tzoom = WIDE + (rest.zoom - WIDE) * e;
+          skyCam.alt = skyCam.talt = UP + (Math.max(rest.alt, skyCam.min) - UP) * e;
+          dark(1 - p / 0.35);
+        } },
+    ]);
+  } else {
+    const a0 = skyCam.alt, z0 = skyCam.zoom;
+    const back = spaceWas || { c: [0, 0, 0], tc: [0, 0, 0], focus: null, scale: clampScale(fit(Math.max((S.t - S.birth) / YEAR, 20) * 1.08, W, H)) };
+    skyWas = { alt: skyCam.talt, zoom: skyCam.tzoom };
+    play([
+      { dur: 900, step: p => { const e = ease(p); skyCam.alt = skyCam.talt = a0 + (UP - a0) * e; skyCam.zoom = skyCam.tzoom = z0 + (WIDE - z0) * e; dark((p - 0.45) / 0.55); } },
+      { dur: 1900, start: () => { setView('space'); then?.(); },
+        step: p => { const e = ease(p); steer(back.c.map(x => x * e), lerpLog(home, back.scale, e)); dark(1 - p / 0.3); },
+        end: () => { cam.focus = back.focus; cam.tc = [...back.tc]; } },
+    ]);
+  }
+}
 
 // night sky clock: minutes after noon of the "current" evening
 const noon = () => { const d = new Date(); if (d.getHours() < 9) d.setDate(d.getDate() - 1); d.setHours(12, 0, 0, 0); return d.getTime(); };
@@ -696,7 +737,7 @@ function renderDetail() {
   }
   el.innerHTML = backButton() + h; hydrate(el); bindLinks(el);
   if ($('#back', el)) $('#back', el).onclick = goBack;
-  if ($('#toSky')) $('#toSky').onclick = () => { setView(S.view === 'sky' ? 'space' : 'sky'); renderDetail(); };
+  if ($('#toSky')) $('#toSky').onclick = () => switchView(S.view === 'sky' ? 'space' : 'sky', renderDetail);
   if ($('#editSel')) $('#editSel').onclick = () => editItem(o);
   if ($('#editBase')) $('#editBase').onclick = () => { openPanel('login'); $('#person')?.scrollIntoView(); };
   if ($('#fly')) $('#fly').onclick = () => flyTo(o);
@@ -736,7 +777,7 @@ function renderSoon() {
     <p><button id="ics">Als Kalender speichern</button></p>
     <p class="fine">Lädt die Ankünfte der nächsten zwei Jahre als Kalender-Datei herunter - zum Öffnen im Handy- oder Computer-Kalender.</p>`;
   $$('li[data-star]', el).forEach(li => li.onclick = () => select(S.stars.find(s => s.n === li.dataset.star)));
-  $$('li[data-sky]', el).forEach(li => li.onclick = () => { setView('sky'); select(S.stars.find(s => s.n === li.dataset.sky)); });
+  $$('li[data-sky]', el).forEach(li => li.onclick = () => switchView('sky', () => select(S.stars.find(s => s.n === li.dataset.sky))));
   $$('li[data-id]', el).forEach(li => li.onclick = () => select(S.items.find(i => i.id === li.dataset.id)));
   bindLinks(el);
   $('#ics').onclick = () => {
