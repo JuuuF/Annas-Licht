@@ -128,6 +128,34 @@ export function starColor(ci) {
   return ci < 0.2 ? '#cfe0ff' : ci < 0.6 ? '#fff6e6' : ci < 1.0 ? '#ffe6b8' : ci < 1.4 ? '#ffcf9a' : '#ffb486';
 }
 
+// Shooting stars, every now and then - not real, just for the joy of catching one. Drawn flat on the screen, one at a time.
+// every: seconds between two, on average; alpha: how bright; floor: they start above this line (the horizon in the night sky)
+const meteor = { next: 0, cur: null };
+export function shootingStar(ctx, W, H, { every = 35, alpha = 1, floor = H } = {}) {
+  const now = performance.now();
+  if (!meteor.next) meteor.next = now + (4 + Math.random() * every) * 1000;
+  if (!meteor.cur && now >= meteor.next) {
+    const size = Math.max(W, H), side = Math.random() < 0.5 ? -1 : 1, slope = 0.3 + Math.random() * 0.45;      // 17 to 42 degrees downwards
+    meteor.cur = { t0: now, dur: 700 + Math.random() * 600, x: W * (0.15 + Math.random() * 0.7), y: Math.max(0, floor) * (0.18 + Math.random() * 0.42),
+      dx: side * Math.cos(slope), dy: Math.sin(slope), run: size * (0.22 + Math.random() * 0.18), tail: size * (0.07 + Math.random() * 0.06) };
+    meteor.next = now + every * (0.5 + Math.random()) * 1000;
+  }
+  const m = meteor.cur;
+  if (!m) return;
+  const p = (now - m.t0) / m.dur;
+  if (p >= 1) { meteor.cur = null; return; }
+  const head = m.run * p * (0.7 + 0.3 * p), tail = m.tail * Math.min(1, p * 4);      // a little faster towards the end; the tail grows quickly
+  const hx = m.x + m.dx * head, hy = m.y + m.dy * head, tx = hx - m.dx * tail, ty = hy - m.dy * tail;
+  const a = alpha * Math.min(1, p * 6) * Math.min(1, (1 - p) * 3);                 // it flares up and fades away
+  const g = ctx.createLinearGradient(tx, ty, hx, hy);
+  g.addColorStop(0, 'rgba(255,240,215,0)'); g.addColorStop(1, 'rgba(255,247,230,1)');
+  ctx.save(); ctx.lineCap = 'round'; ctx.strokeStyle = g;
+  ctx.globalAlpha = a * 0.22; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(hx, hy); ctx.stroke();     // a soft glow
+  ctx.globalAlpha = a; ctx.lineWidth = 1.8; ctx.stroke();
+  ctx.fillStyle = '#fffaf0'; ctx.beginPath(); ctx.arc(hx, hy, 1.7, 0, 7); ctx.fill();
+  ctx.restore();
+}
+
 // greedy label placement: important labels first, later ones are dropped if they would overlap
 // soft labels (star names) are limited to `maxSoft`, so small screens are not buried in text
 // every label that is drawn gets `rect` = [x, y, width, height]

@@ -1,7 +1,7 @@
 // The 3D map: Earth in the centre, real star positions around it, and the light of a lifetime as a growing sphere.
 import { bodies, moonPath, orbitPoints, orbits, sun, vec } from './astro.js';
 import { milky, mistSprite } from './sky.js';
-import { catColor, LS, placeLabels, starColor, weight, YEAR } from './util.js';
+import { catColor, LS, placeLabels, shootingStar, starColor, weight, YEAR } from './util.js';
 
 // c: the point the camera looks at and turns around (light-years, Earth = 0), tc: where it is gliding to,
 // focus: an object to stay with (a star, a planet, a moment on the lifeline)
@@ -150,6 +150,7 @@ export function drawSpace(ctx, W, H, S) {
   for (const [dir, a] of dust) far(dir, 1.1, a, '#fff');
   if (S.sky) for (const s of S.sky.stars) far(s.dir, Math.max(1, 2.8 - s[2] * 0.4), 0.5, starColor(s[3]));
   ctx.globalAlpha = 1;
+  if (!S.calm) shootingStar(ctx, W, H, { every: S.meteors || 35 });      // now and then, far behind everything
 
   // ---- the light of her lifetime ----
   const o = proj([0, 0, 0]);

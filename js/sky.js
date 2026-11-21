@@ -1,7 +1,7 @@
 // The sky above Neumünster as you would see it standing there: you look around from the ground.
 // Which of the stars you can see tonight are watching Anna right now?
 import { NMS, altaz, lstDeg, sunMoon } from './astro.js';
-import { YEAR, placeLabels, starColor } from './util.js';
+import { YEAR, placeLabels, shootingStar, starColor } from './util.js';
 
 const RAD = Math.PI / 180;
 // az/alt: where you look (degrees), t*: where the view is gliding to, zoom: 1 = 70° field of view (top to bottom),
@@ -285,6 +285,9 @@ export function drawSky(ctx, W, H, S) {
     }
     ctx.globalAlpha = 1;
   }
+
+  // now and then a shooting star above the horizon - in front of the clouds, so that one can be caught on a cloudy night too; faint by day
+  if (!S.calm) shootingStar(ctx, W, H, { every: S.meteors || 20, alpha: 0.3 + 0.7 * night, floor: Math.min(H, hy) - 40 });
 
   // haze above the horizon, then a dark line of trees and fields
   if (hy < H + 0.4 * W) {
