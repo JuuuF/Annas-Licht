@@ -225,9 +225,16 @@ textarea { resize: vertical; min-height: 84px; font: 17px/1.45 var(--serif); }
 #ask .box { max-width: 380px; padding: 20px 22px 18px; background: var(--panel); border: 1px solid var(--line2); border-radius: 3px; box-shadow: 0 10px 30px rgba(0, 0, 0, .55); }
 #ask p { margin: 0 0 16px; }
 #lightbox { position: fixed; inset: 0; background: rgba(3, 4, 10, .95); display: grid; place-items: center; cursor: zoom-out; z-index: 20; }
-#lightbox img { max-width: 96vw; max-height: calc(100vh - 80px); cursor: default; }
-.lbbar { position: fixed; left: 0; right: 0; bottom: 14px; display: flex; gap: 12px; justify-content: center; align-items: center; font: 14px var(--sans); color: var(--muted); }
-.lbbar.single [data-lb="-1"], .lbbar.single [data-lb="1"], .lbbar.single #lbcount { display: none; }
+#lightbox, #lightbox img { touch-action: pinch-zoom; }      /* one finger swipes from photo to photo; two fingers still zoom */
+#lightbox img { max-width: 96vw; max-height: calc(100dvh - 90px); cursor: default; user-select: none; -webkit-user-drag: none; }
+/* arrows at the sides, the close button in the corner, the count below */
+.lbnav { position: fixed; top: 50%; transform: translateY(-50%); width: 52px; height: 52px; padding: 0 0 5px; display: grid; place-items: center; border-radius: 50%;
+  border: 1px solid var(--line2); background: rgba(9, 11, 20, .62); color: var(--text); font: 36px/1 var(--serif); }
+.lbnav.prev { left: 16px; } .lbnav.next { right: 16px; }
+.lbx { position: fixed; top: 10px; right: 10px; padding: 4px 12px 8px; border: 0; background: none; color: var(--text); font: 34px/1 var(--sans); text-shadow: 0 0 8px #000; }
+#lbcount { position: fixed; left: 0; right: 0; bottom: 18px; text-align: center; font: 14px var(--sans); color: var(--muted); pointer-events: none; }
+#lightbox.single .lbnav, #lightbox.single #lbcount { display: none; }
+@media (max-width: 760px) { .lbnav { width: 44px; height: 44px; font-size: 31px; } .lbnav.prev { left: 6px; } .lbnav.next { right: 6px; } }
 #journey .thumbs { display: flex; gap: 5px; margin-top: 5px; }
 #journey .thumbs img { width: 44px; height: 44px; object-fit: cover; border-radius: 2px; display: block; cursor: zoom-in; background: rgba(255, 255, 255, .05); }
 .photos figure.new img { outline: 1px dashed var(--gold); outline-offset: -1px; }

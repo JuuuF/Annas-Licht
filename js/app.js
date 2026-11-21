@@ -616,17 +616,42 @@ function showPhoto(list, i) {
   Object.assign(LB, { list, i: (i + list.length) % list.length });
   if (J.on && !J.paused) { J.paused = true; clearTimeout(J.timer); $('#journey').classList.add('paused'); const b = $('#journey [data-j=pause]'); if (b) b.textContent = 'Abspielen'; }   // looking at photos pauses the journey
   $('#lightbox img').src = LB.list[LB.i]; $('#lbcount').textContent = `${LB.i + 1} von ${list.length}`;
-  $('.lbbar').classList.toggle('single', list.length < 2); $('#lightbox').hidden = false;
+  $('#lightbox').classList.toggle('single', list.length < 2); $('#lightbox').hidden = false;
 }
+const lbImg = $('#lightbox img');
+function lbStep(step) {                                // the next photo slides in from the side it comes from
+  if (LB.list.length < 2) return;
+  showPhoto(LB.list, LB.i + step);
+  lbImg.animate?.([{ transform: `translateX(${step * 48}px)`, opacity: 0.35 }, { transform: 'none', opacity: 1 }], { duration: 220, easing: 'ease-out' });
+}
+// swiping: the photo follows the finger sideways; let go far enough and the next one comes, otherwise it springs back
+let swipe = null, swiped = false;
+$('#lightbox').addEventListener('pointerdown', e => {
+  swiped = false;                                      // (a finger's swipe is not followed by a click, so this is reset here and not only there)
+  if (!e.target.closest('button')) swipe = { id: e.pointerId, x: e.clientX, y: e.clientY };
+});
+$('#lightbox').addEventListener('pointermove', e => {
+  if (!swipe || e.pointerId !== swipe.id || LB.list.length < 2) return;
+  const dx = e.clientX - swipe.x;
+  if (Math.abs(dx) > 8) { swiped = true; lbImg.style.transition = 'none'; lbImg.style.transform = `translateX(${dx}px)`; }
+});
+const endSwipe = e => {
+  if (!swipe || e.pointerId !== swipe.id) return;
+  const dx = e.clientX - swipe.x, dy = e.clientY - swipe.y;
+  swipe = null; lbImg.style.transition = 'transform .18s'; lbImg.style.transform = '';
+  if (e.type === 'pointerup' && Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) { lbImg.style.transition = 'none'; lbStep(dx < 0 ? 1 : -1); }
+};
+$('#lightbox').addEventListener('pointerup', endSwipe); $('#lightbox').addEventListener('pointercancel', endSwipe);
 $('#lightbox').onclick = e => {
-  const step = e.target.dataset?.lb;
-  if (step && +step) showPhoto(LB.list, LB.i + +step);
-  else if (e.target.tagName !== 'IMG') $('#lightbox').hidden = true;
+  if (swiped) { swiped = false; return; }             // the end of a swipe is not a tap
+  const step = e.target.closest('[data-lb]')?.dataset.lb;
+  if (step && +step) lbStep(+step);
+  else if (step === '0' || e.target.tagName !== 'IMG') $('#lightbox').hidden = true;
 };
 addEventListener('keydown', e => {
   if ($('#lightbox').hidden) return;
-  if (e.key === 'ArrowRight') { e.stopImmediatePropagation(); showPhoto(LB.list, LB.i + 1); }
-  if (e.key === 'ArrowLeft') { e.stopImmediatePropagation(); showPhoto(LB.list, LB.i - 1); }
+  if (e.key === 'ArrowRight') { e.stopImmediatePropagation(); lbStep(1); }
+  if (e.key === 'ArrowLeft') { e.stopImmediatePropagation(); lbStep(-1); }
 }, true);
 // the saved picture gets the dark background of the page (the map itself is drawn on a see-through sheet) and a small signature
 $('#savePic').onclick = () => {
