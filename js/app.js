@@ -686,9 +686,12 @@ function bindLinks(root) {
   }
 }
 const along = fn => { following = true; try { fn(); } finally { following = false; } };
+// a star chosen in a list or by a link: open it, and on the map also fly there and look at it up close
+function showStar(s) { select(s); if (s?.kind === 'star' && S.view === 'space') flyTo(s); }
+const choose = o => (o?.kind === 'star' ? showStar(o) : select(o));
 function follow(o, from) {
   if (from && from !== o) trail = [...trail.slice(-40), from];
-  along(() => select(o));
+  along(() => choose(o));
 }
 function goBack() {
   const from = trail.pop();
@@ -696,7 +699,7 @@ function goBack() {
   along(() => {
     if (from.panel) { S.sel = null; shareHash(); closePanel('detail'); renderDetail(); openPanel(from.panel); }
     else if (from.kind === 'year') selectYear(from._t);
-    else select(from.id ? S.items.find(i => i.id === from.id) || from : from);     // a moment may have been edited since
+    else choose(from.id ? S.items.find(i => i.id === from.id) || from : from);     // a moment may have been edited since
   });
 }
 const backButton = () => {
@@ -807,7 +810,7 @@ function renderSoon() {
     <h3>Gerade angekommen</h3><ul class="list">${last.map(a => row(a, 'vor')).join('') || '<li class="muted">Noch nichts.</li>'}</ul>
     <p><button id="ics">Als Kalender speichern</button></p>
     <p class="fine">Lädt die Ankünfte der nächsten zwei Jahre als Kalender-Datei herunter - zum Öffnen im Handy- oder Computer-Kalender.</p>`;
-  $$('li[data-star]', el).forEach(li => li.onclick = () => select(S.stars.find(s => s.n === li.dataset.star)));
+  $$('li[data-star]', el).forEach(li => li.onclick = () => showStar(S.stars.find(s => s.n === li.dataset.star)));
   $$('li[data-sky]', el).forEach(li => li.onclick = () => switchView('sky', () => select(S.stars.find(s => s.n === li.dataset.sky))));
   $$('li[data-id]', el).forEach(li => li.onclick = () => select(S.items.find(i => i.id === li.dataset.id)));
   bindLinks(el);
