@@ -470,7 +470,8 @@ function drawStation() {
       : by && by[0] < 0.75 ? `Dieses Licht ist jetzt <b>${fmtDist(d)}</b> entfernt - gerade bei <b>${esc(by[1].n)}</b>.`
         : `Dieses Licht ist jetzt <b>${fmtDist(d)}</b> entfernt${next ? ` und erreicht in ${dur((next.d - d) * YEAR)} <b>${esc(next.n)}</b>` : ''}.`;
     const ph = o.photos || [];
-    h = `<div class="jbody">${ph.length ? `<figure><img data-photo="${esc(ph[0])}" alt="">${ph.length > 1 ? `<div class="thumbs">${ph.slice(1, 5).map(p => `<img data-photo="${esc(p)}" alt="">`).join('')}</div><small>${ph.length} Fotos - antippen zum Durchblättern</small>` : ''}</figure>` : ''}
+    // the whole photo, never cut off; beside it the same photo, zoomed in and blurred, fills the space
+    h = `<div class="jbody">${ph.length ? `<figure><div class="shot"><img class="blur" data-photo="${esc(ph[0])}" alt="" aria-hidden="true"><img data-photo="${esc(ph[0])}" alt=""></div>${ph.length > 1 ? `<div class="thumbs">${ph.slice(1, 5).map(p => `<img data-photo="${esc(p)}" alt="">`).join('')}</div><small>${ph.length} Fotos - antippen zum Durchblättern</small>` : ''}</figure>` : ''}
       <div><p class="meta">${J.i + 1} von ${n - 1}, ${range(o)}${inLife(o._t) && o.id !== 'birth' ? `, ${itemAge(o).replace(/^Anna war /, '').replace(/ alt\.$/, '')}` : ''}</p>
       <h3>${esc(o.title)}</h3>${o.text ? `<p class="jtext">${esc(o.text)}</p>` : ''}<p>${where}</p></div></div>`;
     secs = Math.min(26, (8 + (o.text || '').length / 28 + ph.length * 3) * (0.7 + 0.1 * weight(o)));      // more time for what matters more
@@ -480,6 +481,8 @@ function drawStation() {
       ${o.finale ? '<button data-j="again">Noch einmal</button>' : `<button data-j="pause">${J.paused ? 'Abspielen' : 'Pause'}</button><button data-j="next" class="primary">Weiter</button>`}
       ${o.finale || o.auto ? '' : '<button data-j="more">Ganz ansehen</button>'}<button class="x" aria-label="Reise beenden">×</button></div>`;
   el.classList.toggle('paused', J.paused); el.hidden = false; hydrate(el); life.draw();
+  const shot = $('.shot', el), pic = shot?.lastElementChild;           // the picture takes the photo's own shape, as far as there is room
+  if (pic) pic.onload = () => { shot.style.aspectRatio = `${pic.naturalWidth} / ${pic.naturalHeight}`; };
   $('.x', el).onclick = stopJourney;
   $$('[data-j]', el).forEach(b => b.onclick = () => {
     const a = b.dataset.j;
@@ -525,8 +528,9 @@ function hydrate(root) {
     img.onclick = e => {
       if (!img.src || img.closest('#thumbs') || (img.closest('.wall'))) return;
       e.stopPropagation();
-      const set = $$('img[data-photo]', img.closest('.photos, .jbody') || root).filter(i => i.src);
-      showPhoto(set.map(i => i.src), Math.max(0, set.indexOf(img)));
+      const main = img.classList.contains('blur') ? img.nextElementSibling : img;      // the blurred copy behind a photo opens the photo itself
+      const set = $$('img[data-photo]:not(.blur)', img.closest('.photos, .jbody') || root).filter(i => i.src);
+      showPhoto(set.map(i => i.src), Math.max(0, set.indexOf(main)));
     };
   }
 }
