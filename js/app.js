@@ -141,6 +141,21 @@ function runAnim() {                                   // called before every pi
 function stopAnim() { if (anim?.soft) { anim = null; cam.tc = [...cam.c]; cam.target = cam.scale; cam.touched = performance.now(); } }
 addEventListener('pointerdown', stopAnim, true); addEventListener('wheel', stopAnim, { capture: true, passive: true }); addEventListener('keydown', stopAnim, true);
 const steer = (c, scale) => { cam.focus = null; cam.c = [...c]; cam.tc = [...c]; cam.scale = cam.target = scale; cam.touched = performance.now(); };     // the camera exactly here, no gliding
+
+// The opening flight (14 s): out from the Earth past the Moon, the planets and the nearest stars; up her lifeline,
+// past the moments of her life, to her first light; then back out until her whole light is in view.
+const earthView = () => clampScale(fit(2.4 * LS, W, H));
+function openingFlight() {
+  if (S.view !== 'space' || S.calm) return;
+  const dOut = (S.t - S.birth) / YEAR, all = clampScale(fit(Math.max(dOut, 20) * 1.08, W, H)), near = clampScale(fit(5, W, H)), home = earthView();
+  const T = 14, yaw0 = cam.yaw, part = (a, b, t) => ease(Math.min(1, Math.max(0, (t - a) / (b - a))));
+  play([{ dur: T * 1000, step: p => {
+    const t = p * T, out = part(0, 3.2, t), back = part(T - 3, T, t);      // zoom: away from the Earth, along the line, back out to all of it
+    const scale = Math.exp(Math.log(home) + (Math.log(near) - Math.log(home)) * out + (Math.log(all) - Math.log(near)) * back);
+    steer([0, 0, dOut * part(2.2, T - 3, t) * (1 - back)], scale);       // up the line once it is in sight, then back to the Earth
+    cam.yaw = yaw0 + 0.5 * p; cam.pitch = 0.5 - 0.18 * Math.sin(Math.PI * p);      // a slow turn, looking a little more from the side on the way
+  } }], true);
+}
 const pointers = new Map();
 let moved = 0, pinch = 0, mid = null;
 cv.addEventListener('contextmenu', e => e.preventDefault());
@@ -1126,12 +1141,11 @@ async function init() {
   if (want && panel(want)) openPanel(want);
   const mid = /\bm=(\w+)/.exec(location.hash)?.[1];
   if (mid && S.items.find(i => i.id === mid)) select(S.items.find(i => i.id === mid));
-  // first visit: a short welcome; the opening glide starts once it is closed
+  // first visit: a short welcome; the opening flight starts once it is closed (#flug: the flight alone, #willkommen: both)
   const greet = !want && (!seen || location.hash.includes('willkommen'));
-  if (!location.hash && S.view === 'space' && W && !S.calm) {       // opening: start close to the Earth and glide out until her whole light is in view
-    const all = clampScale(fit(Math.max((S.t - S.birth) / YEAR, 20) * 1.08, W, H)), glide = () => { cam.target = all; cam.ease = 0.022; };
-    cam.scale = cam.target = all * 28;
-    if (greet) afterWelcome = glide; else glide();
+  if (S.view === 'space' && W && !S.calm && (!location.hash || /willkommen|flug/.test(location.hash))) {
+    steer([0, 0, 0], earthView());                     // the welcome is read with the Earth and the Moon behind it
+    if (greet) afterWelcome = openingFlight; else openingFlight();
   }
   if (greet) showWelcome();
   if (pickName) select(S.stars.find(s => s.n === decodeURIComponent(pickName)) || bodies.find(b => b.name === decodeURIComponent(pickName)) || S.items.find(i => i.title === decodeURIComponent(pickName)));
