@@ -17,6 +17,7 @@ body { color: var(--text); font: 18px/1.5 var(--serif); background: var(--bg); -
 [hidden] { display: none !important; }
 #view { position: fixed; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; }
 #view.point { cursor: pointer; }
+#fade { position: fixed; inset: 0; background: var(--bg); opacity: 0; pointer-events: none; }      /* over the map, under everything else: the passage between the map and the night sky */
 
 /* ---- title ---- */
 #head { position: fixed; top: 0; left: 0; padding: 20px 26px; max-width: min(470px, 54vw); pointer-events: none; text-shadow: 0 1px 10px #000, 0 0 2px #000; }

@@ -75,6 +75,7 @@ function frame() {
   const want = top + Math.max(120, H - top - bottom) / 2;
   S.cy = (S.cy ?? want) + (want - (S.cy ?? want)) * 0.15;
   updateBodies(S.t);
+  runAnim();
   frame.n = (frame.n || 0) + 1;
   if (frame.n % 30 === 1) keepClear();
   const t0 = performance.now();
@@ -120,6 +121,26 @@ function flyTo(o) {
   cam.focus = o; cam.target = clampScale(fit(room, W, H)); cam.touched = performance.now();
 }
 function goHome() { cam.focus = null; cam.tc = [0, 0, 0]; cam.touched = performance.now(); }
+
+// ---------- camera moves that run by themselves ----------
+// steps one after the other: { dur (ms), start(), step(p from 0 to 1), end() }; soft: a touch, the mouse wheel or a key ends it where it is
+let anim = null;
+const ease = p => p * p * (3 - 2 * p);
+const lerpLog = (a, b, e) => Math.exp(Math.log(a) + (Math.log(b) - Math.log(a)) * e);       // zooming feels even on a logarithmic scale
+function play(steps, soft = false) { anim = { steps, i: 0, t0: performance.now(), soft }; steps[0].start?.(); }
+function runAnim() {                                   // called before every picture
+  while (anim) {
+    const s = anim.steps[anim.i], p = Math.min(1, (performance.now() - anim.t0) / s.dur);
+    s.step(p);
+    if (p < 1) return;
+    s.end?.();
+    if (++anim.i >= anim.steps.length) { anim = null; return; }
+    anim.t0 = performance.now(); anim.steps[anim.i].start?.();
+  }
+}
+function stopAnim() { if (anim?.soft) { anim = null; cam.tc = [...cam.c]; cam.target = cam.scale; cam.touched = performance.now(); } }
+addEventListener('pointerdown', stopAnim, true); addEventListener('wheel', stopAnim, { capture: true, passive: true }); addEventListener('keydown', stopAnim, true);
+const steer = (c, scale) => { cam.focus = null; cam.c = [...c]; cam.tc = [...c]; cam.scale = cam.target = scale; cam.touched = performance.now(); };     // the camera exactly here, no gliding
 const pointers = new Map();
 let moved = 0, pinch = 0, mid = null;
 cv.addEventListener('contextmenu', e => e.preventDefault());
