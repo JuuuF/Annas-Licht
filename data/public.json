@@ -51,22 +51,5 @@
    "color": "#d8d2c4"
   }
  ],
- "items": [
-  {
-   "cat": "liebe",
-   "photos": [
-    "media/68fb89605e62c9a0.jpg"
-   ],
-   "title": "Hochzeit mit Stephan",
-   "date": "2019-11-22T10:00",
-   "period": false,
-   "end": "",
-   "text": "Am 22.11.2019 haben Stephan und Anne am 50. Geburtstag von Stephan geheiratet.",
-   "id": "d86de921c082f731",
-   "by": "Stephan",
-   "updated": "2026-11-21T08:17:22.300Z",
-   "photoOnly": false,
-   "imp": 5
-  }
- ]
+ "items": []
 }
