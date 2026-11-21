@@ -75,12 +75,26 @@ function frame() {
   const want = top + Math.max(120, H - top - bottom) / 2;
   S.cy = (S.cy ?? want) + (want - (S.cy ?? want)) * 0.15;
   updateBodies(S.t);
+  frame.n = (frame.n || 0) + 1;
+  if (frame.n % 30 === 1) keepClear();
   const t0 = performance.now();
   try { hits = (S.view === 'space' ? drawSpace : drawSky)(ctx, W, H, S); } catch (e) { if (!frame.warned) { frame.warned = true; console.error(e); } }   // one faulty picture must not stop all the following ones
   if (PROBE) { cost = cost * 0.9 + (performance.now() - t0) * 0.1; document.title = `${cost.toFixed(1)} ms, ${S.stars.length}, ${S.items.length}`; }   // "#messen": how long one picture takes to draw
   $('#homeBtn').hidden = atHome();
   if (S.view === 'space') { $('#thumb').style.top = scaleY(Math.min(W, H) * 0.4 / cam.scale) + 'px'; if (++ticks % 90 === 1) layoutScale(); }
   requestAnimationFrame(frame);
+}
+// Where the page's own text lies on top of the map: the headline and its lines, the buttons, the view switch, the names on the ruler.
+// Names drawn on the map keep out of these places, so the two never run into each other. Measured every half second.
+function keepClear() {
+  const out = [], pad = 4, add = r => { if (r.width && r.height) out.push([r.left - pad, r.top - pad, r.width + 2 * pad, r.height + 2 * pad]); };
+  for (const el of $$('#head h1, #lead')) {            // the text itself, line by line, not the whole width of its box
+    if (!el.getClientRects().length) continue;
+    const range = document.createRange(); range.selectNodeContents(el);
+    for (const r of range.getClientRects()) add(r);
+  }
+  for (const el of $$('#head button, #views button, #zoom button')) for (const r of el.getClientRects()) add(r);
+  S.avoid = out;
 }
 // what is under the pointer: the nearest point within reach, a name plate it is on (with a few pixels to spare, more for fingers),
 // or the bar of a span of time: right on it, it wins over what lies behind it (a name plate drawn over it still comes first);

@@ -310,7 +310,7 @@ export function drawSky(ctx, W, H, S) {
     ctx.fillText(name, p[0], p[1] + 28);
   });
 
-  placeLabels(ctx, labels);
+  placeLabels(ctx, labels, 1e9, S.avoid);
   if (day > 0.3) {
     ctx.font = '13px "Source Sans 3", system-ui, sans-serif'; ctx.fillStyle = 'rgba(235,238,245,.9)'; ctx.textAlign = 'center';
     ctx.fillText('Am Tag überstrahlt die Sonne die Sterne - sie stehen trotzdem genau dort.', cx, H - 196);

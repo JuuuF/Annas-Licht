@@ -439,7 +439,7 @@ export function drawSpace(ctx, W, H, S) {
     ctx.fillStyle = '#9cc4ff'; ctx.beginPath(); ctx.arc(o[0], o[1], 3.5, 0, 7); ctx.fill();
     labels.push({ x: o[0], y: o[1] + 17, text: 'Erde', prio: 90, color: '#cfe0ff' });
   }
-  placeLabels(ctx, labels, Math.round(W * H / 11000));
+  placeLabels(ctx, labels, Math.round(W * H / 11000), S.avoid);
   for (const l of labels) if (l.o && l.rect) hits.push({ rect: l.rect, o: l.o });       // the name plates of the moments can be clicked too
   return hits;
 }

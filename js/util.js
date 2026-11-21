@@ -131,8 +131,9 @@ export function starColor(ci) {
 // greedy label placement: important labels first, later ones are dropped if they would overlap
 // soft labels (star names) are limited to `maxSoft`, so small screens are not buried in text
 // every label that is drawn gets `rect` = [x, y, width, height]
-export function placeLabels(ctx, list, maxSoft = 1e9) {
-  const done = [];
+// avoid: places that count as taken from the start - where the page's own text lies on top of the map
+export function placeLabels(ctx, list, maxSoft = 1e9, avoid = []) {
+  const done = [...avoid];
   let soft = 0;
   list.sort((a, b) => b.prio - a.prio);
   for (const l of list) {
