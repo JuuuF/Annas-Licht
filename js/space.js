@@ -21,7 +21,8 @@ export function panBy(dx, dy) {
   cam.tc = cam.tc.map((c, i) => Math.max(-150, Math.min(150, c - dx * k * right[i] + dy * k * up[i])));
   cam.c = [...cam.tc];
 }
-export const atHome = () => !cam.focus && Math.hypot(...cam.tc) < 1e-9;
+const SPIN = 0.036;            // radians per second of the slow turning (a full turn in about three minutes)
+export const atHome = () =>!cam.focus && Math.hypot(...cam.tc) < 1e-9;
 export const fit = (ly, W, H) => Math.min(W, H) * 0.4 / ly;
 export const clampScale = s => Math.min(1.2e10, Math.max(1.5, s));
 
@@ -87,7 +88,12 @@ export function drawSpace(ctx, W, H, S) {
   if (Math.abs(Math.log(cam.target / cam.scale)) < 0.01) cam.ease = 0.12;
   if (cam.focus) cam.tc = [...posOf(cam.focus, t)];
   cam.c = cam.c.map((c, i) => (Math.abs(cam.tc[i] - c) * cam.scale < 0.05 ? cam.tc[i] : c + (cam.tc[i] - c) * 0.1));
-  if (performance.now() - cam.touched > 5000 && !S.hover && !S.calm && !S.still) cam.yaw += 0.0006;
+  // the slow turning of the map: once nobody has touched it for 5 seconds it starts, gently, over 2.5 seconds; a touch stops it at once.
+  // Measured in time, not in pictures, so it turns equally fast on every screen.
+  const clock = performance.now(), dt = Math.min(0.1, (clock - (cam.last || clock)) / 1000);
+  cam.last = clock;
+  cam.spin = clock - cam.touched > 5000 && !S.hover && !S.calm && !S.still ? Math.min(1, (cam.spin || 0) + dt / 2.5) : 0;
+  cam.yaw += SPIN * cam.spin * cam.spin * (3 - 2 * cam.spin) * dt;
   const sc = cam.scale, F = 1.05 * Math.max(W, H);     // small F = strong perspective
   const cyaw = Math.cos(cam.yaw), syaw = Math.sin(cam.yaw), cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch);
   const rot = v => {

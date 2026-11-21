@@ -140,7 +140,8 @@ function runAnim() {                                   // called before every pi
 }
 function stopAnim() { if (anim?.soft) { anim = null; cam.tc = [...cam.c]; cam.target = cam.scale; cam.touched = performance.now(); } }
 addEventListener('pointerdown', stopAnim, true); addEventListener('wheel', stopAnim, { capture: true, passive: true }); addEventListener('keydown', stopAnim, true);
-const steer = (c, scale) => { cam.focus = null; cam.c = [...c]; cam.tc = [...c]; cam.scale = cam.target = scale; cam.touched = performance.now(); };     // the camera exactly here, no gliding
+// the camera exactly here, no gliding; turning: let the slow turning of the map go on meanwhile
+const steer = (c, scale, turning = false) => { cam.focus = null; cam.c = [...c]; cam.tc = [...c]; cam.scale = cam.target = scale; if (!turning) cam.touched = performance.now(); };
 
 // The opening flight (14 s): out from the Earth past the Moon, the planets and the nearest stars; up her lifeline,
 // past the moments of her life, to her first light; then back out until her whole light is in view.
@@ -148,12 +149,16 @@ const earthView = () => clampScale(fit(2.4 * LS, W, H));
 function openingFlight() {
   if (S.view !== 'space' || S.calm) return;
   const dOut = (S.t - S.birth) / YEAR, all = clampScale(fit(Math.max(dOut, 20) * 1.08, W, H)), near = clampScale(fit(5, W, H)), home = earthView();
-  const T = 14, yaw0 = cam.yaw, part = (a, b, t) => ease(Math.min(1, Math.max(0, (t - a) / (b - a))));
+  const T = 14, part = (a, b, t) => ease(Math.min(1, Math.max(0, (t - a) / (b - a))));
+  // The parts overlap, so that nothing ever stands still: the way up is still slowing down when the zoom back out begins,
+  // and the camera turns round near her first light while it already pulls back.
+  // The turning is the map's own slow turning: it sets in gently at the start and simply goes on after the flight.
+  cam.touched = -1e9;                                  // "untouched for long": the page's clock starts at 0 when it is opened
   play([{ dur: T * 1000, step: p => {
-    const t = p * T, out = part(0, 3.2, t), back = part(T - 3, T, t);      // zoom: away from the Earth, along the line, back out to all of it
+    const t = p * T, out = part(0, 3.4, t), back = part(9.6, T, t);       // zoom: away from the Earth, along the line, back out to all of it
     const scale = Math.exp(Math.log(home) + (Math.log(near) - Math.log(home)) * out + (Math.log(all) - Math.log(near)) * back);
-    steer([0, 0, dOut * part(2.2, T - 3, t) * (1 - back)], scale);       // up the line once it is in sight, then back to the Earth
-    cam.yaw = yaw0 + 0.5 * p; cam.pitch = 0.5 - 0.18 * Math.sin(Math.PI * p);      // a slow turn, looking a little more from the side on the way
+    steer([0, 0, dOut * part(2, 10.8, t) * (1 - back)], scale, true);   // up the line once it is in sight, then back to the Earth
+    cam.pitch = 0.5 - 0.09 * (1 - Math.cos(2 * Math.PI * p));            // looking a little more from the side on the way, smoothly in and out
   } }], true);
 }
 const pointers = new Map();
@@ -278,8 +283,9 @@ function switchView(v, then) {
     skyWas = { alt: skyCam.talt, zoom: skyCam.tzoom };
     play([
       { dur: 900, step: p => { const e = ease(p); skyCam.alt = skyCam.talt = a0 + (UP - a0) * e; skyCam.zoom = skyCam.tzoom = z0 + (WIDE - z0) * e; dark((p - 0.45) / 0.55); } },
-      { dur: 1900, start: () => { setView('space'); then?.(); },
-        step: p => { const e = ease(p); steer(back.c.map(x => x * e), lerpLog(home, back.scale, e)); dark(1 - p / 0.3); },
+      // out of the Earth: quick at first (still in the dark), then slowing down over a long way, so that it comes to rest gently
+      { dur: 2600, start: () => { setView('space'); then?.(); },
+        step: p => { const e = 1 - (1 - p) ** 4; steer(back.c.map(x => x * e), lerpLog(home, back.scale, e)); dark(1 - p / 0.25); },
         end: () => { cam.focus = back.focus; cam.tc = [...back.tc]; } },
     ]);
   }
