@@ -478,9 +478,23 @@ function drawStation() {
   J.secs = secs; J.held = false; arm();
 }
 $('#play').onclick = () => (J.on ? stopJourney() : startJourney());
+
+// ---------- a short welcome for first-time visitors (again from "Über diese Seite", or with #willkommen) ----------
+let afterWelcome = null;                                 // what happens once it is closed: the opening glide waits for it
+function showWelcome() { $('#welcome').hidden = false; $('#welcomeGo').focus(); }
+function closeWelcome(then) {
+  $('#welcome').hidden = true;
+  afterWelcome?.(); afterWelcome = null;
+  if (then) openPanel(then);
+}
+$('#welcomeGo').onclick = () => closeWelcome();
+$('#welcomeMore').onclick = () => closeWelcome('about');
+$('#welcome').onclick = e => { if (e.target.id === 'welcome') closeWelcome(); };      // a tap beside the card
+$('#welcomeAgain').onclick = showWelcome;
+
 addEventListener('keydown', e => {
   if (e.target.closest('input, textarea, select')) return;
-  if (e.key === 'Escape') { if (answer) answer(false); else if (!$('#lightbox').hidden) $('#lightbox').hidden = true; else if (J.on) stopJourney(); else { $$('.panel').forEach(p => { p.hidden = true; }); syncDock(); } }
+  if (e.key === 'Escape') { if (answer) answer(false); else if (!$('#welcome').hidden) closeWelcome(); else if (!$('#lightbox').hidden) $('#lightbox').hidden = true; else if (J.on) stopJourney(); else { $$('.panel').forEach(p => { p.hidden = true; }); syncDock(); } }
   if (!J.on) return;
   if (e.key === 'ArrowRight' && J.i < J.list.length - 1) { J.i++; showStation(); }
   if (e.key === 'ArrowLeft' && J.i > 0) { J.i--; showStation(); }
@@ -1070,13 +1084,17 @@ async function init() {
   if (yr) selectYear(new Date(+yr, 6, 1).getTime());
   const go = /go=([^&]+)/.exec(location.hash)?.[1];
   if (go) { const n = decodeURIComponent(go); flyTo(S.stars.find(s => s.n === n) || bodies.find(b => b.name === n) || S.items.find(i => i.title === n)); cam.scale = cam.target; cam.c = [...(cam.focus?.v || [0, 0, (S.t - (cam.focus?._t || S.t)) / YEAR])]; }
-  // first visit: explain the page once the opening glide is over
-  if (want) { if (panel(want)) openPanel(want); } else if (!seen) setTimeout(() => { if (!J.on && $$('.panel').every(p => p.hidden)) openPanel('about'); }, 6500);
+  if (want && panel(want)) openPanel(want);
   const mid = /\bm=(\w+)/.exec(location.hash)?.[1];
   if (mid && S.items.find(i => i.id === mid)) select(S.items.find(i => i.id === mid));
+  // first visit: a short welcome; the opening glide starts once it is closed
+  const greet = !want && (!seen || location.hash.includes('willkommen'));
   if (!location.hash && S.view === 'space' && W && !S.calm) {       // opening: start close to the Earth and glide out until her whole light is in view
-    cam.target = clampScale(fit(Math.max((S.t - S.birth) / YEAR, 20) * 1.08, W, H)); cam.scale = cam.target * 28; cam.ease = 0.022;
+    const all = clampScale(fit(Math.max((S.t - S.birth) / YEAR, 20) * 1.08, W, H)), glide = () => { cam.target = all; cam.ease = 0.022; };
+    cam.scale = cam.target = all * 28;
+    if (greet) afterWelcome = glide; else glide();
   }
+  if (greet) showWelcome();
   if (pickName) select(S.stars.find(s => s.n === decodeURIComponent(pickName)) || bodies.find(b => b.name === decodeURIComponent(pickName)) || S.items.find(i => i.title === decodeURIComponent(pickName)));
 }
 init().catch(e => {
