@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex, nofollow">
   <!-- What this page may load and talk to: only itself, GitHub (saving) and Open-Meteo (cloud cover). No foreign scripts, no plug-ins,
        no form may send anything anywhere. The sha256 value is the fingerprint of the import map below; tools/bump.py keeps it current. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-SPSZmUSokR2MieWVfTWYAh5b9FRw5LGdBa5CJ/gwJlk='; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self'; connect-src 'self' https://api.github.com https://api.open-meteo.com; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-ab0YRP4mcqH8+xPeTj7pR7fco2pbYGh9oh75t0enUuA='; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self'; connect-src 'self' https://api.github.com https://api.open-meteo.com; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <meta name="description" content="Eine Erinnerungsseite für Familie und Freunde.">
   <meta name="theme-color" content="#070912">
@@ -19,8 +19,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Annas Licht">
   <!-- One version for all files: raise it with every change (tools/bump.sh) so browsers never mix old and new files. -->
-  <link rel="stylesheet" href="style.css?v=20261121194134">
-  <script type="importmap">{ "imports": { "./js/util.js": "./js/util.js?v=20261121194134", "./js/astro.js": "./js/astro.js?v=20261121194134", "./js/store.js": "./js/store.js?v=20261121194134", "./js/space.js": "./js/space.js?v=20261121194134", "./js/phototime.js": "./js/phototime.js?v=20261121194134", "./js/life.js": "./js/life.js?v=20261121194134", "./js/sky.js": "./js/sky.js?v=20261121194134" } }</script>
+  <link rel="stylesheet" href="style.css?v=20261121234326">
+  <script type="importmap">{ "imports": { "./js/util.js": "./js/util.js?v=20261121234326", "./js/astro.js": "./js/astro.js?v=20261121234326", "./js/store.js": "./js/store.js?v=20261121234326", "./js/space.js": "./js/space.js?v=20261121234326", "./js/phototime.js": "./js/phototime.js?v=20261121234326", "./js/life.js": "./js/life.js?v=20261121234326", "./js/sky.js": "./js/sky.js?v=20261121234326" } }</script>
 </head>
 <body>
   <canvas id="view" aria-label="Karte: Wo Annas Licht gerade unterwegs ist"></canvas>
@@ -38,7 +38,7 @@
 
   <div id="zoom" aria-label="Ausschnitt">
     <button data-zoom="home" id="homeBtn" class="primary" hidden title="Die Erde wieder in die Mitte nehmen">Zurück zur Erde</button>
-    <div id="scale" title="Wie weit hinaus? Antippen oder ziehen."><i id="thumb"></i>
+    <div id="scale"><i id="track" title="Wie weit hinaus? Am Strich ziehen."></i><i id="thumb"></i>
       <button data-zoom="life">Ihr ganzes Leben</button>
       <button data-zoom="near">Nachbarsterne</button>
       <button data-zoom="last">Letztes Licht</button>
@@ -113,6 +113,6 @@
   <div id="ask" hidden role="alertdialog" aria-modal="true" aria-labelledby="askText"><div class="box"><p id="askText"></p>
     <div class="row"><button class="primary" data-a="0"></button><button class="danger" data-a="1"></button></div></div></div>
   <div id="lightbox" hidden><img alt=""><div class="lbbar"><button data-lb="-1">Zurück</button><span id="lbcount"></span><button data-lb="1">Weiter</button><button data-lb="0">Schließen</button></div></div>
-  <script type="module" src="js/app.js?v=20261121194134"></script>
+  <script type="module" src="js/app.js?v=20261121234326"></script>
 </body>
 </html>

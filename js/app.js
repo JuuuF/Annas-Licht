@@ -169,8 +169,10 @@ function scaleDrag(e) {
   const r = scaleEl.getBoundingClientRect(), y = Math.min(r.height, Math.max(0, e.clientY - r.top));
   cam.target = clampScale(fit(10 ** (VMAX - y / r.height * (VMAX - VMIN)), W, H)); cam.ease = 0.2; cam.touched = performance.now();
 }
-scaleEl.addEventListener('pointerdown', e => { if (e.target.closest('button')) return; scaleEl.setPointerCapture(e.pointerId); scaleDrag(e); });
-scaleEl.addEventListener('pointermove', e => { if (scaleEl.hasPointerCapture(e.pointerId)) scaleDrag(e); });
+// zooming by dragging works on the line only (the names jump to their view when tapped); the rest of the ruler lets touches through to the map
+const track = $('#track');
+track.addEventListener('pointerdown', e => { track.setPointerCapture(e.pointerId); scaleDrag(e); });
+track.addEventListener('pointermove', e => { if (track.hasPointerCapture(e.pointerId)) scaleDrag(e); });
 addEventListener('resize', layoutScale);
 
 // the slow turning of the map can be switched off, to look at one arrangement in peace
