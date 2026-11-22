@@ -130,16 +130,16 @@ export function starColor(ci) {
 
 // Shooting stars, now and then - not real, just for the joy of catching one by chance: small, quick and rare, so that they are
 // found rather than noticed. Drawn flat on the screen, one at a time.
-// every: the shortest time between two, in seconds (the longest is twice that); alpha: how bright; floor: they start above this line
+// every: the shortest time between two, in seconds (the longest is three times that); alpha: how bright; floor: they start above this line
 const meteor = { next: 0, cur: null };
 export function shootingStar(ctx, W, H, { every = 60, alpha = 1, floor = H } = {}) {
   const now = performance.now();
-  if (!meteor.next || meteor.next - now > every * 2000) meteor.next = now + every * (0.5 + Math.random()) * 1000;      // not right away; sooner if the pace was raised
+  if (!meteor.next || meteor.next - now > every * 3000) meteor.next = now + every * (1 + 2 * Math.random()) * 1000;    // not right away; sooner if the pace was raised
   if (!meteor.cur && now >= meteor.next) {
     const size = Math.max(W, H), side = Math.random() < 0.5 ? -1 : 1, slope = 0.3 + Math.random() * 0.45;      // 17 to 42 degrees downwards
     meteor.cur = { t0: now, dur: 450 + Math.random() * 350, x: W * (0.15 + Math.random() * 0.7), y: Math.max(0, floor) * (0.18 + Math.random() * 0.42),
       dx: side * Math.cos(slope), dy: Math.sin(slope), run: size * (0.07 + Math.random() * 0.06), tail: size * (0.025 + Math.random() * 0.02) };
-    meteor.next = now + every * (1 + Math.random()) * 1000;
+    meteor.next = now + every * (1 + 2 * Math.random()) * 1000;
   }
   const m = meteor.cur;
   if (!m) return;

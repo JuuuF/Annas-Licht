@@ -10,8 +10,8 @@ import { AU, CATS, LS, WEIGHTS, YEAR, applyCats, catColor, dateInput, dur, esc, 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const S = { calm: matchMedia('(prefers-reduced-motion: reduce)').matches, t: Date.now(), offset: 0, view: 'space', sel: null, hover: null, stars: [], sky: null, items: [], birth: 0, death: 0, skyT: null };
-// #sternschnuppe: one shooting star every 3 to 5 seconds, to look at them - read before the first picture, and again when the address changes
-const meteorPace = () => { S.meteors = location.hash.includes('sternschnuppe') ? 2.7 : 0; };
+// #sternschnuppe: one shooting star every 2 to 6 seconds, to look at them - read before the first picture, and again when the address changes
+const meteorPace = () => { S.meteors = location.hash.includes('sternschnuppe') ? 2 : 0; };
 meteorPace(); addEventListener('hashchange', meteorPace);
 const cv = $('#view'), ctx = cv.getContext('2d');
 let W = 0, H = 0, hits = [], ticks = 0, cost = 0;
