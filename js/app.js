@@ -143,21 +143,23 @@ addEventListener('pointerdown', stopAnim, true); addEventListener('wheel', stopA
 // the camera exactly here, no gliding; turning: let the slow turning of the map go on meanwhile
 const steer = (c, scale, turning = false) => { cam.focus = null; cam.c = [...c]; cam.tc = [...c]; cam.scale = cam.target = scale; if (!turning) cam.touched = performance.now(); };
 
-// The opening flight (14 s): out from the Earth past the Moon, the planets and the nearest stars; up her lifeline,
+// The opening flight (10 s): out from the Earth past the Moon, the planets and the nearest stars; up her lifeline,
 // past the moments of her life, to her first light; then back out until her whole light is in view.
 const earthView = () => clampScale(fit(2.4 * LS, W, H));
 function openingFlight() {
   if (S.view !== 'space' || S.calm) return;
-  const dOut = (S.t - S.birth) / YEAR, all = clampScale(fit(Math.max(dOut, 20) * 1.08, W, H)), near = clampScale(fit(5, W, H)), home = earthView();
-  const T = 14, part = (a, b, t) => ease(Math.min(1, Math.max(0, (t - a) / (b - a))));
-  // The parts overlap, so that nothing ever stands still: the way up is still slowing down when the zoom back out begins,
-  // and the camera turns round near her first light while it already pulls back.
+  const dOut = (S.t - S.birth) / YEAR, all = clampScale(fit(Math.max(dOut, 20) * 1.08, W, H)), near = clampScale(fit(8, W, H)), home = earthView();
+  const T = 10, part = (a, b, t) => ease(Math.min(1, Math.max(0, (t - a) / (b - a))));
+  // The way back out is planned on the screen: her first light rises steadily from the middle to its place at the top of
+  // the sphere while the zoom opens, and the Earth comes up steadily from below into the middle - nothing moves one way
+  // and then back. It begins while the way up is still slowing down, so that the camera never stands still.
   // The turning is the map's own slow turning: it sets in gently at the start and simply goes on after the flight.
+  const top = dOut * all;                              // how far above the middle her first light ends up, in pixels
   cam.touched = -1e9;                                  // "untouched for long": the page's clock starts at 0 when it is opened
   play([{ dur: T * 1000, step: p => {
-    const t = p * T, out = part(0, 3.4, t), back = part(9.6, T, t);       // zoom: away from the Earth, along the line, back out to all of it
+    const t = p * T, out = part(0, 2.6, t), up = part(1.8, 6.6, t), back = part(5.9, T, t);
     const scale = Math.exp(Math.log(home) + (Math.log(near) - Math.log(home)) * out + (Math.log(all) - Math.log(near)) * back);
-    steer([0, 0, dOut * part(2, 10.8, t) * (1 - back)], scale, true);   // up the line once it is in sight, then back to the Earth
+    steer([0, 0, dOut * up - top * back / scale], scale, true);
     cam.pitch = 0.5 - 0.09 * (1 - Math.cos(2 * Math.PI * p));            // looking a little more from the side on the way, smoothly in and out
   } }], true);
 }
