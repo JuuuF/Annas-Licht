@@ -150,7 +150,7 @@ export function drawSpace(ctx, W, H, S) {
   for (const [dir, a] of dust) far(dir, 1.1, a, '#fff');
   if (S.sky) for (const s of S.sky.stars) far(s.dir, Math.max(1, 2.8 - s[2] * 0.4), 0.5, starColor(s[3]));
   ctx.globalAlpha = 1;
-  if (!S.calm) shootingStar(ctx, W, H, { every: S.meteors || 35 });      // now and then, far behind everything
+  if (!S.calm) shootingStar(ctx, W, H, { every: S.meteors || 70 });      // now and then, far behind everything
 
   // ---- the light of her lifetime ----
   const o = proj([0, 0, 0]);

@@ -128,17 +128,18 @@ export function starColor(ci) {
   return ci < 0.2 ? '#cfe0ff' : ci < 0.6 ? '#fff6e6' : ci < 1.0 ? '#ffe6b8' : ci < 1.4 ? '#ffcf9a' : '#ffb486';
 }
 
-// Shooting stars, every now and then - not real, just for the joy of catching one. Drawn flat on the screen, one at a time.
-// every: seconds between two, on average; alpha: how bright; floor: they start above this line (the horizon in the night sky)
+// Shooting stars, now and then - not real, just for the joy of catching one by chance: small, quick and rare, so that they are
+// found rather than noticed. Drawn flat on the screen, one at a time.
+// every: the shortest time between two, in seconds (the longest is twice that); alpha: how bright; floor: they start above this line
 const meteor = { next: 0, cur: null };
-export function shootingStar(ctx, W, H, { every = 35, alpha = 1, floor = H } = {}) {
+export function shootingStar(ctx, W, H, { every = 60, alpha = 1, floor = H } = {}) {
   const now = performance.now();
-  if (!meteor.next) meteor.next = now + (4 + Math.random() * every) * 1000;
+  if (!meteor.next) meteor.next = now + every * (0.5 + Math.random()) * 1000;      // not right away
   if (!meteor.cur && now >= meteor.next) {
     const size = Math.max(W, H), side = Math.random() < 0.5 ? -1 : 1, slope = 0.3 + Math.random() * 0.45;      // 17 to 42 degrees downwards
-    meteor.cur = { t0: now, dur: 700 + Math.random() * 600, x: W * (0.15 + Math.random() * 0.7), y: Math.max(0, floor) * (0.18 + Math.random() * 0.42),
-      dx: side * Math.cos(slope), dy: Math.sin(slope), run: size * (0.22 + Math.random() * 0.18), tail: size * (0.07 + Math.random() * 0.06) };
-    meteor.next = now + every * (0.5 + Math.random()) * 1000;
+    meteor.cur = { t0: now, dur: 450 + Math.random() * 350, x: W * (0.15 + Math.random() * 0.7), y: Math.max(0, floor) * (0.18 + Math.random() * 0.42),
+      dx: side * Math.cos(slope), dy: Math.sin(slope), run: size * (0.07 + Math.random() * 0.06), tail: size * (0.025 + Math.random() * 0.02) };
+    meteor.next = now + every * (1 + Math.random()) * 1000;
   }
   const m = meteor.cur;
   if (!m) return;
@@ -146,13 +147,13 @@ export function shootingStar(ctx, W, H, { every = 35, alpha = 1, floor = H } = {
   if (p >= 1) { meteor.cur = null; return; }
   const head = m.run * p * (0.7 + 0.3 * p), tail = m.tail * Math.min(1, p * 4);      // a little faster towards the end; the tail grows quickly
   const hx = m.x + m.dx * head, hy = m.y + m.dy * head, tx = hx - m.dx * tail, ty = hy - m.dy * tail;
-  const a = alpha * Math.min(1, p * 6) * Math.min(1, (1 - p) * 3);                 // it flares up and fades away
+  const a = 0.7 * alpha * Math.min(1, p * 6) * Math.min(1, (1 - p) * 3);           // it flares up and fades away
   const g = ctx.createLinearGradient(tx, ty, hx, hy);
   g.addColorStop(0, 'rgba(255,240,215,0)'); g.addColorStop(1, 'rgba(255,247,230,1)');
   ctx.save(); ctx.lineCap = 'round'; ctx.strokeStyle = g;
-  ctx.globalAlpha = a * 0.22; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(hx, hy); ctx.stroke();     // a soft glow
-  ctx.globalAlpha = a; ctx.lineWidth = 1.8; ctx.stroke();
-  ctx.fillStyle = '#fffaf0'; ctx.beginPath(); ctx.arc(hx, hy, 1.7, 0, 7); ctx.fill();
+  ctx.globalAlpha = a * 0.15; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(hx, hy); ctx.stroke();     // a faint glow
+  ctx.globalAlpha = a; ctx.lineWidth = 1.1; ctx.stroke();
+  ctx.fillStyle = '#fffaf0'; ctx.beginPath(); ctx.arc(hx, hy, 1.05, 0, 7); ctx.fill();
   ctx.restore();
 }
 

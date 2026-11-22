@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex, nofollow">
   <!-- What this page may load and talk to: only itself, GitHub (saving) and Open-Meteo (cloud cover). No foreign scripts, no plug-ins,
        no form may send anything anywhere. The sha256 value is the fingerprint of the import map below; tools/bump.py keeps it current. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-c373EgzfVOGW5bAxrh48Oxrvj2xlcRfUOcNpvZpWd/8='; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self'; connect-src 'self' https://api.github.com https://api.open-meteo.com; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-80DqtIwsFUJ1Rnb25xHOX3L/+tMZ2bb536zaTdAGpn4='; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self'; connect-src 'self' https://api.github.com https://api.open-meteo.com; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <meta name="description" content="Eine Erinnerungsseite für Familie und Freunde.">
   <meta name="theme-color" content="#070912">
@@ -19,8 +19,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Annas Licht">
   <!-- One version for all files: raise it with every change (tools/bump.sh) so browsers never mix old and new files. -->
-  <link rel="stylesheet" href="style.css?v=20261122005538">
-  <script type="importmap">{ "imports": { "./js/util.js": "./js/util.js?v=20261122005538", "./js/astro.js": "./js/astro.js?v=20261122005538", "./js/store.js": "./js/store.js?v=20261122005538", "./js/space.js": "./js/space.js?v=20261122005538", "./js/phototime.js": "./js/phototime.js?v=20261122005538", "./js/life.js": "./js/life.js?v=20261122005538", "./js/sky.js": "./js/sky.js?v=20261122005538" } }</script>
+  <link rel="stylesheet" href="style.css?v=20261122010356">
+  <script type="importmap">{ "imports": { "./js/util.js": "./js/util.js?v=20261122010356", "./js/astro.js": "./js/astro.js?v=20261122010356", "./js/store.js": "./js/store.js?v=20261122010356", "./js/space.js": "./js/space.js?v=20261122010356", "./js/phototime.js": "./js/phototime.js?v=20261122010356", "./js/life.js": "./js/life.js?v=20261122010356", "./js/sky.js": "./js/sky.js?v=20261122010356" } }</script>
 </head>
 <body>
   <canvas id="view" aria-label="Karte: Wo Annas Licht gerade unterwegs ist"></canvas>
@@ -129,6 +129,6 @@
   <div id="lightbox" hidden><img alt="" draggable="false">
     <button class="lbnav prev" data-lb="-1" aria-label="Voriges Foto">‹</button><button class="lbnav next" data-lb="1" aria-label="Nächstes Foto">›</button>
     <button class="lbx" data-lb="0" aria-label="Schließen">×</button><span id="lbcount"></span></div>
-  <script type="module" src="js/app.js?v=20261122005538"></script>
+  <script type="module" src="js/app.js?v=20261122010356"></script>
 </body>
 </html>

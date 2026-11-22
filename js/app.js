@@ -1186,7 +1186,7 @@ const DEMO = [['Einschulung', '1976-08-30', '', 'kindheit'], ['Schulzeit', '1976
 // ---------- start ----------
 async function init() {
   setView(location.hash.includes('himmel') ? 'sky' : 'space');
-  if (location.hash.includes('sternschnuppe')) S.meteors = 4;     // to look at the shooting stars: one every few seconds
+  if (location.hash.includes('sternschnuppe')) S.meteors = 2.7;   // to look at the shooting stars: one every 3 to 5 seconds
   setSkyTime(sunAltitude(Date.now()) < -6 ? null : 600);
   weather.on = true;                                   // clouds show unless someone switched them off
   try { weather.on = localStorage.getItem('annas-licht-clouds') !== 'aus'; } catch { /* ignore */ }

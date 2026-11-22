@@ -287,7 +287,7 @@ export function drawSky(ctx, W, H, S) {
   }
 
   // now and then a shooting star above the horizon - in front of the clouds, so that one can be caught on a cloudy night too; faint by day
-  if (!S.calm) shootingStar(ctx, W, H, { every: S.meteors || 20, alpha: 0.3 + 0.7 * night, floor: Math.min(H, hy) - 40 });
+  if (!S.calm) shootingStar(ctx, W, H, { every: S.meteors || 60, alpha: 0.3 + 0.7 * night, floor: Math.min(H, hy) - 40 });
 
   // haze above the horizon, then a dark line of trees and fields
   if (hy < H + 0.4 * W) {
