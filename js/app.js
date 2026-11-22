@@ -1221,7 +1221,11 @@ async function init() {
   if (mid && S.items.find(i => i.id === mid)) select(S.items.find(i => i.id === mid));
   // first visit: a short welcome; the opening flight starts once it is closed (#flug: the flight alone, #willkommen: both)
   const greet = !want && (!seen || location.hash.includes('willkommen'));
-  if (S.view === 'space' && W && !S.calm && (!location.hash || /willkommen|flug/.test(location.hash))) {
+  // the flight greets someone coming to the page - not again on a reload, nor on back and forward, nor later in the same tab
+  const nav = performance.getEntriesByType?.('navigation')?.[0];
+  let entering = !nav || nav.type === 'navigate';
+  try { if (sessionStorage.getItem('annas-licht-flug')) entering = false; sessionStorage.setItem('annas-licht-flug', '1'); } catch { /* private mode: the reload check alone */ }
+  if (S.view === 'space' && W && !S.calm && ((!location.hash && entering) || /willkommen|flug/.test(location.hash))) {
     steer([0, 0, 0], earthView());                     // the welcome is read with the Earth and the Moon behind it
     if (greet) afterWelcome = openingFlight; else openingFlight();
   }
