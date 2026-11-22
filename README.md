@@ -21,6 +21,8 @@ Bildschirmfotos in vier Gerätegrößen: `sh tools/shots.sh <Ordner> <Name> '#de
 
 Lokal ansehen: `python3 -m http.server` und <http://localhost:8000> öffnen.
 Datenschicht testen: `node tools/test_store.mjs`. Umriss der Lichtkugel in der 3D-Karte prüfen: `node tools/test_outline.mjs`.
+Den Namen bei „Hinzugefügt von“ für alle Momente einer Person ändern: `node tools/set_author.mjs <alter Name> <neuer Name>` (fragt nach Name und Passwort eines Zugangs, danach `data/` committen).
+Der Name entscheidet auch, wer einen Moment ändern darf: Zugänge „Mitgestalten“ nur ihre eigenen.
 
 ## Adresszusätze
 
