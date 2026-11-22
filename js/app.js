@@ -146,13 +146,13 @@ addEventListener('pointerdown', stopAnim, true); addEventListener('wheel', stopA
 // the camera exactly here, no gliding; turning: let the slow turning of the map go on meanwhile
 const steer = (c, scale, turning = false) => { cam.focus = null; cam.c = [...c]; cam.tc = [...c]; cam.scale = cam.target = scale; if (!turning) cam.touched = performance.now(); };
 
-// The opening flight (10 s): out from the Earth past the Moon, the planets and the nearest stars; up her lifeline,
+// The opening flight (7.5 s): out from the Earth past the Moon, the planets and the nearest stars; up her lifeline,
 // past the moments of her life, to her first light; then back out until her whole light is in view.
 const earthView = () => clampScale(fit(2.4 * LS, W, H));
 function openingFlight() {
   if (S.view !== 'space' || S.calm) return;
   const dOut = (S.t - S.birth) / YEAR, all = clampScale(fit(Math.max(dOut, 20) * 1.08, W, H)), near = clampScale(fit(8, W, H)), home = earthView();
-  const T = 10, part = (a, b, t) => ease(Math.min(1, Math.max(0, (t - a) / (b - a))));
+  const T = 7.5, part = (a, b, t) => ease(Math.min(1, Math.max(0, (t - a) / (b - a))));
   // The way back out is planned on the screen: her first light rises steadily from the middle to its place at the top of
   // the sphere while the zoom opens, and the Earth comes up steadily from below into the middle - nothing moves one way
   // and then back. It begins while the way up is still slowing down, so that the camera never stands still.
@@ -160,7 +160,7 @@ function openingFlight() {
   const top = dOut * all;                              // how far above the middle her first light ends up, in pixels
   cam.touched = -1e9;                                  // "untouched for long": the page's clock starts at 0 when it is opened
   play([{ dur: T * 1000, step: p => {
-    const t = p * T, out = part(0, 2.6, t), up = part(1.8, 6.6, t), back = part(5.9, T, t);
+    const t = p * T, out = part(0, 1.95, t), up = part(1.35, 4.95, t), back = part(4.43, T, t);
     const scale = Math.exp(Math.log(home) + (Math.log(near) - Math.log(home)) * out + (Math.log(all) - Math.log(near)) * back);
     steer([0, 0, dOut * up - top * back / scale], scale, true);
     cam.pitch = 0.5 - 0.09 * (1 - Math.cos(2 * Math.PI * p));            // looking a little more from the side on the way, smoothly in and out
