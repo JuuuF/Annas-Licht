@@ -10,6 +10,9 @@ import { AU, CATS, LS, WEIGHTS, YEAR, applyCats, catColor, dateInput, dur, esc, 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const S = { calm: matchMedia('(prefers-reduced-motion: reduce)').matches, t: Date.now(), offset: 0, view: 'space', sel: null, hover: null, stars: [], sky: null, items: [], birth: 0, death: 0, skyT: null };
+// #sternschnuppe: one shooting star every 3 to 5 seconds, to look at them - read before the first picture, and again when the address changes
+const meteorPace = () => { S.meteors = location.hash.includes('sternschnuppe') ? 2.7 : 0; };
+meteorPace(); addEventListener('hashchange', meteorPace);
 const cv = $('#view'), ctx = cv.getContext('2d');
 let W = 0, H = 0, hits = [], ticks = 0, cost = 0;
 const PROBE = location.hash.includes('messen'), LOCAL = /^(localhost|127\.)/.test(location.hostname);
@@ -1188,7 +1191,6 @@ const DEMO = [['Einschulung', '1976-08-30', '', 'kindheit'], ['Schulzeit', '1976
 // ---------- start ----------
 async function init() {
   setView(location.hash.includes('himmel') ? 'sky' : 'space');
-  if (location.hash.includes('sternschnuppe')) S.meteors = 2.7;   // to look at the shooting stars: one every 3 to 5 seconds
   setSkyTime(sunAltitude(Date.now()) < -6 ? null : 600);
   weather.on = true;                                   // clouds show unless someone switched them off
   try { weather.on = localStorage.getItem('annas-licht-clouds') !== 'aus'; } catch { /* ignore */ }

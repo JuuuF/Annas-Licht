@@ -134,7 +134,7 @@ export function starColor(ci) {
 const meteor = { next: 0, cur: null };
 export function shootingStar(ctx, W, H, { every = 60, alpha = 1, floor = H } = {}) {
   const now = performance.now();
-  if (!meteor.next) meteor.next = now + every * (0.5 + Math.random()) * 1000;      // not right away
+  if (!meteor.next || meteor.next - now > every * 2000) meteor.next = now + every * (0.5 + Math.random()) * 1000;      // not right away; sooner if the pace was raised
   if (!meteor.cur && now >= meteor.next) {
     const size = Math.max(W, H), side = Math.random() < 0.5 ? -1 : 1, slope = 0.3 + Math.random() * 0.45;      // 17 to 42 degrees downwards
     meteor.cur = { t0: now, dur: 450 + Math.random() * 350, x: W * (0.15 + Math.random() * 0.7), y: Math.max(0, floor) * (0.18 + Math.random() * 0.42),
