@@ -808,7 +808,8 @@ function renderSoon() {
   }).filter(a => a.inDays <= 30 && a.years >= 1).sort((a, b) => a.inDays - b.inDays);
   const annRow = a => `<li data-id="${esc(a.i.id)}"><span class="swatch" style="background:${catColor(a.i.cat)}"></span><div><span class="when">${a.inDays === 0 ? 'Heute' : a.inDays === 1 ? 'Morgen' : `In ${a.inDays} Tagen`}</span><br>
     ${a.i.id === 'birth' ? `Annas ${a.years}. Geburtstag` : `${esc(a.i.title)} - ${a.inDays === 0 ? 'heute' : 'dann'} vor ${a.years} ${a.years === 1 ? 'Jahr' : 'Jahren'}`}</div></li>`;
-  $('#dock [data-panel=soon]').classList.toggle('dot', days.some(a => a.inDays === 0) || next.some(a => a.at - t < 864e5));
+  // a small gold mark on "Heute" when something happens today (its own class name: "dot" is the legend's star symbol)
+  $('#dock [data-panel=soon]').classList.toggle('today', days.some(a => a.inDays === 0) || next.some(a => a.at - t < 864e5));
   el.innerHTML = `${tonight ? `<h3 style="margin-top:0">Heute Nacht am Himmel</h3><ul class="list">${tonight}</ul>` : ''}
     ${days.length ? `<h3>Jahrestage</h3><ul class="list">${days.map(annRow).join('')}</ul>` : ''}
     <h3>Wo ihr Licht demnächst ankommt</h3><ul class="list">${next.map(a => row(a, 'in')).join('')}</ul>

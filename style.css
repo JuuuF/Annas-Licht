@@ -80,7 +80,7 @@ a { color: var(--gold); cursor: pointer; text-decoration: underline; text-decora
 #dock { position: fixed; left: 0; right: 0; bottom: 0; height: 44px; background: var(--bar); border-top: 1px solid var(--line); justify-content: center; gap: 34px; padding: 0 12px; }
 #dock button { padding: 0 2px; height: 100%; white-space: nowrap; }
 #dock button.on { box-shadow: inset 0 2px var(--gold); }
-#dock button.dot::after { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); margin-left: 6px; vertical-align: 1px; }
+#dock button.today::after { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); margin-left: 6px; vertical-align: 1px; }
 #dock .short { display: none; }
 
 /* ---- cards above the strip ---- */
