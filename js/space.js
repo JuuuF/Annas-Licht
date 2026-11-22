@@ -88,11 +88,11 @@ export function drawSpace(ctx, W, H, S) {
   if (Math.abs(Math.log(cam.target / cam.scale)) < 0.01) cam.ease = 0.12;
   if (cam.focus) cam.tc = [...posOf(cam.focus, t)];
   cam.c = cam.c.map((c, i) => (Math.abs(cam.tc[i] - c) * cam.scale < 0.05 ? cam.tc[i] : c + (cam.tc[i] - c) * 0.1));
-  // the slow turning of the map: once nobody has touched it for 5 seconds it starts, gently, over 2.5 seconds; a touch stops it at once.
-  // Measured in time, not in pictures, so it turns equally fast on every screen.
+  // the slow turning of the map: once nobody has touched it for 5 seconds it starts, gently, over 2.5 seconds; a touch stops it at once,
+  // "Drehung anhalten" lets it slow down gently over 2 seconds. Measured in time, not in pictures, so it turns equally fast on every screen.
   const clock = performance.now(), dt = Math.min(0.1, (clock - (cam.last || clock)) / 1000);
   cam.last = clock;
-  cam.spin = clock - cam.touched > 5000 && !S.hover && !S.calm && !S.still ? Math.min(1, (cam.spin || 0) + dt / 2.5) : 0;
+  cam.spin = clock - cam.touched < 5000 || S.hover || S.calm ? 0 : S.still ? Math.max(0, (cam.spin || 0) - dt / 2) : Math.min(1, (cam.spin || 0) + dt / 2.5);
   cam.yaw += SPIN * cam.spin * cam.spin * (3 - 2 * cam.spin) * dt;
   const sc = cam.scale, F = 1.05 * Math.max(W, H);     // small F = strong perspective
   const cyaw = Math.cos(cam.yaw), syaw = Math.sin(cam.yaw), cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch);
