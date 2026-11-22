@@ -22,6 +22,28 @@ Bildschirmfotos in vier Gerätegrößen: `sh tools/shots.sh <Ordner> <Name> '#de
 Lokal ansehen: `python3 -m http.server` und <http://localhost:8000> öffnen.
 Datenschicht testen: `node tools/test_store.mjs`. Umriss der Lichtkugel in der 3D-Karte prüfen: `node tools/test_outline.mjs`.
 
+## Adresszusätze
+
+Hinter die Adresse gehängt, z. B. <https://www.annas-licht.de/#flug>. Mehrere werden mit `&` verbunden: `#himmel&sternschnuppe`.
+Sie wirken beim Laden der Seite. Wird danach etwas ausgewählt, ersetzt die Seite den Zusatz in der Adresszeile durch einen Link auf das Ausgewählte;
+bis zum nächsten Neuladen wirkt er trotzdem weiter.
+
+| Zusatz | Wirkung |
+| --- | --- |
+| `#flug` | zeigt den Eröffnungsflug (sonst nur, wenn man die Seite in einem neuen Tab betritt, nicht beim Neuladen) |
+| `#willkommen` | zeigt die Begrüßung (sonst nur beim allerersten Besuch) und danach den Flug |
+| `#sternschnuppe` | alle 2 bis 6 Sekunden eine Sternschnuppe (sonst alle 1 bis 3 Minuten); wirkt auch ohne Neuladen |
+| `#himmel` | öffnet den Nachthimmel statt der 3D-Karte |
+| `#p=moments` | öffnet eine Tafel: `moments` (Momente), `soon` (Heute), `time` (Zeitreise), `about` (Über diese Seite), `login` (Anmelden) |
+| `#m=<id>` | öffnet einen Moment; so sehen die Links aus, die die Seite beim Auswählen in die Adresszeile schreibt |
+| `#sel=Wega` | wählt einen Stern, Planeten oder Moment (nach seinem Titel) aus |
+| `#go=Wega` | fliegt zu einem Stern, Planeten oder Moment (nach seinem Titel) |
+| `#z=solar` | Ausschnitt wie die Namen am Maßstab rechts: `life`, `near`, `last`, `solar`, `moon` |
+| `#jahr=1998` | wählt ein Jahr ihres Lebens aus |
+| `#reise`, `#reise=4` | öffnet „Ihr Leben erleben“ angehalten, auf Wunsch bei einer späteren Station (gezählt ab 0: `4` ist die fünfte) |
+| `#messen` | zeigt im Titel des Browser-Tabs, wie viele Millisekunden ein Bild der Karte braucht |
+| `#demo` | nur auf dem eigenen Rechner (localhost): erfundene Beispiel-Momente statt der echten |
+
 ## Ersteinrichtung
 
 1. Auf GitHub einen *fine-grained personal access token* anlegen: nur dieses Repository, Berechtigung **Contents: Read and write**.
