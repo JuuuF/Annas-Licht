@@ -859,8 +859,9 @@ function renderMoments() {
     return;
   }
   momentsTab = 'list';
+  // the invitation to add memories is only for those not logged in; an account that may only look does not hear of other accounts
   el.innerHTML = (can ? '<p class="row"><button class="primary" id="add">Einen Moment hinzufügen</button><button id="addPhotos">Nur Fotos hinzufügen</button></p>'
-    : '<p class="muted">Wer Anna kannte, kann hier eigene Erinnerungen hinzufügen - dafür bitte unten auf „Anmelden“ tippen.</p>')
+    : store.state.session ? '' : '<p class="muted">Wer Anna kannte, kann hier eigene Erinnerungen hinzufügen - dafür bitte unten auf „Anmelden“ tippen.</p>')
     + tools + sorter + (shown.length ? '' : '<p class="muted">Zu dieser Auswahl gibt es keine Momente.</p>') + `<ul class="list">${shown.map(i => `<li data-id="${esc(i.id)}"><span class="swatch ${i._e ? 'span' : ''}" style="background:${catColor(i.cat)}"></span>
       <div style="flex:1">${esc(i.title)} ${lock(i)}<small><span class="tag" style="color:${catColor(i.cat)}">${esc(CATS[themeOf(i)][0])}</span>${range(i)}${i.photos?.length ? `, ${i.photos.length} Foto${i.photos.length > 1 ? 's' : ''}` : ''}</small></div>
       ${store.canEdit(i) ? `<button data-edit="${esc(i.id)}" style="padding:4px 10px;font-size:13px">Bearbeiten</button>` : ''}</li>`).join('')}</ul>`;
@@ -1061,6 +1062,12 @@ function addPhotos() {
 
 // ---------- accounts ----------
 const ROLES = { admin: 'Verwaltung', editor: 'Mitgestalten', viewer: 'Nur ansehen' };
+// what an account can do, shown once logged in (the administration explains itself by its own sections)
+const ROLE_CAN = {
+  viewer: 'Mit diesem Zugang siehst du alle Erinnerungen und Fotos, auch die, die nur für Familie und Freunde sichtbar sind.',
+  editor: 'Mit diesem Zugang siehst du alle Erinnerungen und Fotos, auch die, die nur für Familie und Freunde sichtbar sind. ' +
+    'Unter „Momente“ kannst du eigene Momente und Fotos hinzufügen. Was du selbst eingetragen hast, kannst du dort später auch ändern oder löschen.',
+};
 // a password field with a button that shows what was typed, and hides it again
 // (the button sits beside the label, not in it, so that its text does not become part of the field's name)
 const pwField = (text, name, attrs) => `<div class="pw"><label>${text}<input type="password" name="${name}" ${attrs}></label><button type="button" class="show" aria-label="Passwort anzeigen">Anzeigen</button></div>`;
@@ -1104,7 +1111,7 @@ function renderLogin() {
     $('form', el).onsubmit = e => { e.preventDefault(); const f = e.target; act($('.status', el), 'Einen Moment ...', () => store.login(f.name.value, f.pass.value, f.keep.checked)); };
     return;
   }
-  let h = `<p>Angemeldet als <b>${esc(s.name)}</b> <span class="tag">${ROLES[s.role] || ''}</span></p><p><button id="out">Abmelden</button></p>`;
+  let h = `<p>Angemeldet als <b>${esc(s.name)}</b> <span class="tag">${ROLES[s.role] || ''}</span></p>${ROLE_CAN[s.role] ? `<p class="muted">${ROLE_CAN[s.role]}</p>` : ''}<p><button id="out">Abmelden</button></p>`;
   if (s.role === 'admin') {
     const p = st.person, [bd, bt] = p.birth.split('T'), [dd, dt] = p.death.split('T');
     h += `<h3>Zugänge</h3><ul class="list">${st.accounts.map(a => `<li style="cursor:default"><div style="flex:1">${esc(a.name)}<small>${ROLES[a.role] || ''}</small></div>
